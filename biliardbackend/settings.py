@@ -28,6 +28,8 @@ DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,biliardapi.szlg.info,biliard.szlg.info').split(',')
 
+# CSRF Trusted Origins
+CSRF_TRUSTED_ORIGINS = os.getenv('DJANGO_CSRF_TRUSTED_ORIGINS', 'http://localhost:3000,http://localhost:5173,http://localhost:8000,http://biliardapi.szlg.info,http://biliard.szlg.info').split(',')
 
 # CORS Headers settings
 CORS_ALLOW_ALL_ORIGINS = True
