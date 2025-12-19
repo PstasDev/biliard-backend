@@ -590,14 +590,27 @@ def biro_frames(request, match_id):
     elif request.method == 'POST':
         data = request.data
         
-        # Check if match is already decided
+        # Check if match is already decided (Best of N logic)
         player1_wins = match.match_frames.filter(winner=match.player1).count()
         player2_wins = match.match_frames.filter(winner=match.player2).count()
+        total_frames = match.frames_to_win
         
-        # Don't create a new frame if either player has already won
-        if player1_wins >= match.frames_to_win or player2_wins >= match.frames_to_win:
+        # Best of N: Need (N+1)/2 to win if N is odd, or match ends in draw if N/2 - N/2 and N is even
+        frames_needed_to_win = (total_frames + 1) // 2
+        
+        # Check if someone already won
+        if player1_wins >= frames_needed_to_win or player2_wins >= frames_needed_to_win:
             return Response({
-                'error': 'Match is already decided',
+                'error': 'Match is already decided - winner declared',
+                'player1_wins': player1_wins,
+                'player2_wins': player2_wins,
+                'frames_to_win': match.frames_to_win
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if match ended in draw (even total frames and tied)
+        if total_frames % 2 == 0 and player1_wins + player2_wins >= total_frames:
+            return Response({
+                'error': 'Match ended in draw',
                 'player1_wins': player1_wins,
                 'player2_wins': player2_wins,
                 'frames_to_win': match.frames_to_win

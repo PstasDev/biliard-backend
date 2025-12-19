@@ -475,12 +475,20 @@ class BiroMatchAdminConsumer(AsyncWebsocketConsumer):
         try:
             match = Match.objects.get(id=self.match_id)
             
-            # Check if match is already decided
+            # Check if match is already decided (Best of N logic)
             player1_wins = match.match_frames.filter(winner=match.player1).count()
             player2_wins = match.match_frames.filter(winner=match.player2).count()
+            total_frames = match.frames_to_win
+            
+            # Best of N: Need (N+1)/2 to win if N is odd
+            frames_needed_to_win = (total_frames + 1) // 2
             
             # Don't create a new frame if either player has already won
-            if player1_wins >= match.frames_to_win or player2_wins >= match.frames_to_win:
+            if player1_wins >= frames_needed_to_win or player2_wins >= frames_needed_to_win:
+                return None
+            
+            # Don't create new frame if match ended in draw (even total frames and tied)
+            if total_frames % 2 == 0 and player1_wins + player2_wins >= total_frames:
                 return None
             
             frame = Frame.objects.create(
