@@ -480,8 +480,12 @@ class BiroMatchAdminConsumer(AsyncWebsocketConsumer):
             player2_wins = match.match_frames.filter(winner=match.player2).count()
             total_frames = match.frames_to_win
             
-            # Best of N: Need (N+1)/2 to win if N is odd
-            frames_needed_to_win = (total_frames + 1) // 2
+            # Best of N: For even N need (N/2)+1 to win, for odd N need (N+1)/2
+            # Examples: best of 4 needs 3, best of 5 needs 3, best of 6 needs 4
+            if total_frames % 2 == 0:
+                frames_needed_to_win = (total_frames // 2) + 1
+            else:
+                frames_needed_to_win = (total_frames + 1) // 2
             
             # Don't create a new frame if either player has already won
             if player1_wins >= frames_needed_to_win or player2_wins >= frames_needed_to_win:

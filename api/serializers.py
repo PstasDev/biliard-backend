@@ -50,10 +50,11 @@ class MatchListSerializer(serializers.ModelSerializer):
     """Lightweight serializer for match lists without frames"""
     player1 = ProfileSerializer(read_only=True)
     player2 = ProfileSerializer(read_only=True)
+    match_frames = FrameSerializer(many=True, read_only=True)
     
     class Meta:
         model = Match
-        fields = ['id', 'phase', 'group', 'player1', 'player2', 'match_date', 'frames_to_win']
+        fields = ['id', 'phase', 'group', 'player1', 'player2', 'match_date', 'frames_to_win', 'match_frames']
 
 
 class GroupSerializer(serializers.ModelSerializer):
